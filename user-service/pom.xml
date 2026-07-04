@@ -65,6 +65,7 @@
     </dependencies>
 
     <build>
+        <finalName>app</finalName>
         <plugins>
             <!-- Explicitly register Lombok as an annotation processor.
                  Required because JDK 23+ no longer runs classpath processors
