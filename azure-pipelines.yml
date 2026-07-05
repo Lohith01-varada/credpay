@@ -12,19 +12,32 @@ variables:
 
 stages:
   - stage: BuildDockerFrontend
-    displayName: build docker front end
+    displayName: build docker images
     jobs:
       - job: BuildAndPushImages
         displayName: Build and pushing
         steps:
           - checkout: self
           - task: Docker@2
+            displayName: frontend image
             inputs:
               containerRegistry: 'credpaysc'
               repository: '$(frontendrepo)'
               command: 'buildAndPush'
               Dockerfile: 'frontend-react/Dockerfile'
               buildContext: 'frontend-react'
+              tags: |
+                $(tag)
+                latest
+
+          - task: Docker@2
+            displayName: payment image
+            inputs:
+              containerRegistry: 'credpaysc'
+              repository: '$(paymentrepo)'
+              command: 'buildAndPush'
+              Dockerfile: 'payment-service/Dockerfile'
+              buildContext: 'payment-service'
               tags: |
                 $(tag)
                 latest
