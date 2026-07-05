@@ -2,7 +2,7 @@ trigger:
  - main
 pool:
  vmImage: 'Ubuntu-latest'
-
+#credpayacr01        acr name
 variables:
  acrserviceconnection: credpaysc
  tag: '$(Build.BuildId)'
