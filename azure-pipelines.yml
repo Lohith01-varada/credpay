@@ -3,9 +3,28 @@ trigger:
 pool:
  vmImage: 'Ubuntu-latest'
 
-steps:
-  - checkout: self
-  - script: |
-      echo "current files"
-      pwd
-      ls -la
+variables:
+ acrserviceconnection: credpaysc
+ tag: '$(Build.BuildId)'
+ frontendrepo: 'credpayacr/frontend'
+ paymentrepo: 'credpayacr/paymentservice'
+ userrepo: 'credpayacr/userservice'
+
+stages:
+  - stage: BuildDockerFrontend
+    displayName: build docker front end
+    jobs:
+      - job: BuildAndPushImages
+        displayName: Build and pushing
+        steps:
+          - checkout: self
+          - task: Docker@2
+            inputs:
+              containerRegistry: 'credpaysc'
+              repository: '$(frontendrepo)'
+              command: 'buildAndPush'
+              Dockerfile: 'frontend-react/Dockerfile'
+              buildContext: 'frontend-react'
+              tags: |
+                $(tag)
+                latest
