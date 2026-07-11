@@ -1,0 +1,102 @@
+trigger:
+ - main
+pool:
+ vmImage: 'Ubuntu-latest'
+#credpayacr01        acr name
+variables:
+ acrserviceconnection: credpaysc
+ tag: '$(Build.BuildId)'
+ frontendrepo: 'credpayacr/frontend'
+ paymentrepo: 'credpayacr/paymentservice'
+ userrepo: 'credpayacr/userservice'
+
+stages:
+  # - stage: BuildDockerFrontend
+  #   displayName: build docker images
+  #   jobs:
+  #     - job: BuildAndPushImages
+  #       displayName: Build and pushing
+  #       steps:
+  #         - checkout: self
+  #         - task: Docker@2
+  #           displayName: frontend image
+  #           inputs:
+  #             containerRegistry: 'credpaysc'
+  #             repository: '$(frontendrepo)'
+  #             command: 'buildAndPush'
+  #             Dockerfile: 'frontend-react/Dockerfile'
+  #             buildContext: 'frontend-react'
+  #             tags: |
+  #               $(tag)
+  #               latest
+
+  #         - task: Docker@2
+  #           displayName: payment image
+  #           inputs:
+  #             containerRegistry: 'credpaysc'
+  #             repository: '$(paymentrepo)'
+  #             command: 'buildAndPush'
+  #             Dockerfile: 'payment-service/Dockerfile'
+  #             buildContext: 'payment-service'
+  #             tags: |
+  #               $(tag)
+  #               latest
+
+  #         - task: Docker@2
+  #           displayName: user image
+  #           inputs:
+  #             containerRegistry: 'credpaysc'
+  #             repository: '$(userrepo)'
+  #             command: 'buildAndPush'
+  #             Dockerfile: 'user-service/Dockerfile'
+  #             buildContext: 'user-service'
+  #             tags: |
+  #               $(tag)
+  #               latest
+  - stage: terraform
+    displayName: runnning terraform
+    jobs:
+      - job: terraformruns
+        displayName: run terraform
+        steps:
+          - checkout: self
+          - task: TerraformInstaller@1
+            inputs:
+              terraformVersion: 'latest'
+          - task: TerraformTask@5
+            inputs:
+              provider: 'azurerm'
+              command: 'init'
+              workingDirectory: 'terraform'
+              backendAzureRmUseEntraIdForAuthentication: false
+              backendServiceArm: 'credpaymanual'
+              backendAzureRmOverrideSubscriptionID: 'fd407978-9051-497c-928b-551a02341f85'
+              backendAzureRmResourceGroupName: 'credpaystatrg'
+              backendAzureRmStorageAccountName: 'credpaystatestg0112'
+              backendAzureRmContainerName: 'credpaystatecont'
+              backendAzureRmKey: 'credpay.tfstate'
+
+          - task: TerraformTask@5
+            inputs:
+              provider: 'azurerm'
+              command: 'validate'
+              workingDirectory: 'terraform'
+
+          - task: TerraformTask@5
+            inputs:
+              provider: 'azurerm'
+              command: 'apply'
+              workingDirectory: 'terraform'
+              commandOptions: '--auto-approve'
+              environmentServiceNameAzureRM: 'credpaymanual'
+
+          - task: TerraformTask@5
+            inputs:
+              provider: 'azurerm'
+              command: 'destroy'
+              workingDirectory: 'terraform'
+              commandOptions: '--auto-approve'
+              environmentServiceNameAzureRM: 'credpaymanual'
+          
+
+        
