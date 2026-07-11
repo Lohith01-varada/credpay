@@ -11,46 +11,59 @@ variables:
  userrepo: 'credpayacr/userservice'
 
 stages:
-  - stage: BuildDockerFrontend
-    displayName: build docker images
+  # - stage: BuildDockerFrontend
+  #   displayName: build docker images
+  #   jobs:
+  #     - job: BuildAndPushImages
+  #       displayName: Build and pushing
+  #       steps:
+  #         - checkout: self
+  #         - task: Docker@2
+  #           displayName: frontend image
+  #           inputs:
+  #             containerRegistry: 'credpaysc'
+  #             repository: '$(frontendrepo)'
+  #             command: 'buildAndPush'
+  #             Dockerfile: 'frontend-react/Dockerfile'
+  #             buildContext: 'frontend-react'
+  #             tags: |
+  #               $(tag)
+  #               latest
+
+  #         - task: Docker@2
+  #           displayName: payment image
+  #           inputs:
+  #             containerRegistry: 'credpaysc'
+  #             repository: '$(paymentrepo)'
+  #             command: 'buildAndPush'
+  #             Dockerfile: 'payment-service/Dockerfile'
+  #             buildContext: 'payment-service'
+  #             tags: |
+  #               $(tag)
+  #               latest
+
+  #         - task: Docker@2
+  #           displayName: user image
+  #           inputs:
+  #             containerRegistry: 'credpaysc'
+  #             repository: '$(userrepo)'
+  #             command: 'buildAndPush'
+  #             Dockerfile: 'user-service/Dockerfile'
+  #             buildContext: 'user-service'
+  #             tags: |
+  #               $(tag)
+  #               latest
+  - stage: terraform
+    displayName: runnning terraform
     jobs:
-      - job: BuildAndPushImages
-        displayName: Build and pushing
+      - job: terraformruns
+        displayName: run terraform
         steps:
           - checkout: self
-          - task: Docker@2
-            displayName: frontend image
+          - task: TerraformInstaller@1
             inputs:
-              containerRegistry: 'credpaysc'
-              repository: '$(frontendrepo)'
-              command: 'buildAndPush'
-              Dockerfile: 'frontend-react/Dockerfile'
-              buildContext: 'frontend-react'
-              tags: |
-                $(tag)
-                latest
+              terraformVersion: 'latest'
 
-          - task: Docker@2
-            displayName: payment image
-            inputs:
-              containerRegistry: 'credpaysc'
-              repository: '$(paymentrepo)'
-              command: 'buildAndPush'
-              Dockerfile: 'payment-service/Dockerfile'
-              buildContext: 'payment-service'
-              tags: |
-                $(tag)
-                latest
+          
 
-          - task: Docker@2
-            displayName: user image
-            inputs:
-              containerRegistry: 'credpaysc'
-              repository: '$(userrepo)'
-              command: 'buildAndPush'
-              Dockerfile: 'user-service/Dockerfile'
-              buildContext: 'user-service'
-              tags: |
-                $(tag)
-                latest
         
