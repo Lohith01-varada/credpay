@@ -63,7 +63,40 @@ stages:
           - task: TerraformInstaller@1
             inputs:
               terraformVersion: 'latest'
+          - task: TerraformTask@5
+            inputs:
+              provider: 'azurerm'
+              command: 'init'
+              workingDirectory: 'terraform'
+              backendAzureRmUseEntraIdForAuthentication: false
+              backendServiceArm: 'credpaymanual'
+              backendAzureRmOverrideSubscriptionID: 'fd407978-9051-497c-928b-551a02341f85'
+              backendAzureRmResourceGroupName: 'credpaystatrg'
+              backendAzureRmStorageAccountName: 'credpaystatestg0112'
+              backendAzureRmContainerName: 'credpaystatecont'
+              backendAzureRmKey: 'credpay.tfstate'
 
+          - task: TerraformTask@5
+            inputs:
+              provider: 'azurerm'
+              command: 'validate'
+              workingDirectory: 'terraform'
+
+          - task: TerraformTask@5
+            inputs:
+              provider: 'azurerm'
+              command: 'apply'
+              workingDirectory: 'terraform'
+              commandOptions: '--auto-approve'
+              environmentServiceNameAzureRM: 'credpaymanual'
+
+          - task: TerraformTask@5
+            inputs:
+              provider: 'azurerm'
+              command: 'destroy'
+              workingDirectory: 'terraform'
+              commandOptions: '--auto-approve'
+              environmentServiceNameAzureRM: 'credpaymanual'
           
 
         
